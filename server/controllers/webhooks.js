@@ -26,7 +26,14 @@ export const clerkWebhooks = async (req, res) => {
           imageUrl: data.image_url,
         };
 
-        await User.create(userData);
+        // await User.create(userData);
+        
+        // Upsert: update if exists, insert if not
+        await User.findOneAndUpdate(
+          { _id: data.id },
+          userData,
+          { upsert: true, new: true }
+        );        
         break;
       }
 
