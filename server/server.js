@@ -16,7 +16,9 @@ await connectDB();
 app.get('/',(req,res) => {
     res.send("API working")
 })
-app.post('/clerk', express.json(),clerkWebhooks)
+app.post('/clerk', express.raw({ type: "application/json" }),clerkWebhooks)
+
+app.use(express.json());
 
 const PORT = process.env.PORT || 5001   
 
