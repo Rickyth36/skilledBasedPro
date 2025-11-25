@@ -16,7 +16,7 @@ export const clerkWebhooks = async (req, res) => {
 
     switch (type) {
       case "user.created": {
-        const email = Array.isArray(data.email_address)
+        const email = Array.isArray(data.email_addresses)
           ? data.email_addresses[0].email_address
           : data.email_address;
 
@@ -32,7 +32,7 @@ export const clerkWebhooks = async (req, res) => {
       }
 
       case "user.updated": {
-        const email = Array.isArray(data.email_address)
+        const email = Array.isArray(data.email_addresses)
           ? data.email_addresses[0].email_address
           : data.email_address;
 
