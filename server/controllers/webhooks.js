@@ -13,7 +13,6 @@ export const clerkWebhooks = async (req, res) => {
     });
 
     const { data, type } = JSON.parse(req.body);
-
     switch (type) {
       case "user.created": {
         const email = Array.isArray(data.email_addresses)
