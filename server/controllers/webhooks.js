@@ -6,13 +6,13 @@ export const clerkWebhooks = async (req, res) => {
     const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
 
     // Verify webhook
-    whook.verify(JSON.stringify(req.body), {
+    whook.verify(req.body, {
       "svix-id": req.headers["svix-id"],
       "svix-timestamp": req.headers["svix-timestamp"],
       "svix-signature": req.headers["svix-signature"],
     });
 
-    const { data, type } = req.body;
+    const { data, type } = JSON.parse(req.body);
 
     switch (type) {
       case "user.created": {
