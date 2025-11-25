@@ -13,10 +13,18 @@ await connectDB();
 
 
 // Routes
+app.post('/clerk', express.raw({ type: "application/json" }), (req, res, next) => {
+  console.log("Headers:", req.headers);
+  console.log("Raw body:", req.body.toString());
+  next();
+}, clerkWebhooks);
+
+app.use(express.json());
+
 app.get('/',(req,res) => {
     res.send("API working")
 })
-app.post('/clerk', express.json(),clerkWebhooks)
+
 
 const PORT = process.env.PORT || 5001   
 
@@ -24,5 +32,5 @@ app.listen(PORT,() => {
     console.log(`Server is running on port ${PORT}`);
 })
 
-console.log(process.env.MONGODB_URI);
-console.log(process.env.CLERK_WEBHOOK_SECRET);
+// console.log(process.env.MONGODB_URI);
+// console.log(process.env.CLERK_WEBHOOK_SECRET);
