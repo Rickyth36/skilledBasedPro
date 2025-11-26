@@ -1,9 +1,8 @@
 import User from "../models/User.js";
 import Purchase from "../models/Purchase.js";
 import Stripe from "stripe";
-import { CourseProgress } from "../models/courseProgress.js";
+import {CourseProgress} from "../models/CourseProgress.js"
 import Course from "../models/Course.js";
-
 
 
 export const getUserData = async(req,res) => {
