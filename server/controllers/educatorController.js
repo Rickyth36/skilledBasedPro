@@ -1,6 +1,6 @@
 import {clerkClient} from '@clerk/express'
 import { json } from 'express'
-import {vs as cloudinary} from 'cloudinary'
+import {v2 as cloudinary} from 'cloudinary'
 import Course from '../models/Course.js'
 import Purchase from '../models/Purchase.js'
 

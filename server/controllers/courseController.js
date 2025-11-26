@@ -1,5 +1,6 @@
 import Course from "../models/Course.js";
 
+
 // Get all courses
 
 export const getAllCourses = async() => {
@@ -35,3 +36,4 @@ export const getCourseId = async() => {
         
     }
 }
+
