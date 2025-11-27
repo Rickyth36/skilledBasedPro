@@ -1,10 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import uniqid from 'uniqid'
 import Quill from 'quill'
 import { assets } from '../../assets/assets';
+import { AppContext } from '../../context/AppContext';
+import { toast } from 'react-toastify';
+import axios from 'axios';
 
 
 function AddCourse() {
+  const {backendUrl, getToken} = useContext(AppContext);
   const quillRef = useRef(null);
   const editorRef = useRef(null);
 
@@ -88,7 +92,48 @@ function AddCourse() {
   }
 
   const handleSubmit = async(e) => {
-    e.preventDefault()
+    console.log("URL hitting:", `${backendUrl}/api/educator/add-course`);
+    try {
+      e.preventDefault()
+      if(!image) {
+        toast.error('Thumbnail not selected');
+      }
+      const courseData = {
+        courseTitle,
+        courseDescription: quillRef.current.root.innerHTML,
+        coursePrice: Number(coursePrice),
+        discount: Number(discount),
+        courseContent: chapters,
+      }
+      const formData = new FormData();
+      formData.append('courseData', JSON.stringify(courseData));
+      formData.append('image',image);
+
+      const token = await getToken();
+      const { data } = await axios.post(
+        backendUrl + '/api/educator/add-course',
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      if(data.success){
+        toast.success(data.message);
+        setCourseTitle('');
+        setCoursePrice(0);
+        setDiscount(0);
+        setImage(null);
+        setChapters([]);
+        quillRef.current.root.innerHTML = ""
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+      
+    }
   }
 
   useEffect(() => {
@@ -127,7 +172,7 @@ function AddCourse() {
           <p>Course Thumbnail</p>
           <label className='flex items-center gap-3' htmlFor="thumbnailImage">
             <img className='p-3 bg-blue-500 rounded' src={assets.file_upload_icon} alt="" />
-            <input onChange={(e) => e.target.files[0]} type="file" accept='image/*' hidden/>
+            <input id='thumbnailImage' onChange={(e) => setImage(e.target.files[0])} type="file" accept='image/*' hidden/>
             <img className='max-h-10' src={image ? URL.createObjectURL(image):''} alt="" />
           </label>
         </div>
@@ -234,7 +279,7 @@ function AddCourse() {
           )
         }
       </div>
-      <button className='bg-black text-whitew-max py-2.5 px-8
+      <button type="submit" className='bg-black text-white w-max py-2.5 px-8
       rounded my-4'>ADD</button>
 
     </form>

@@ -1,15 +1,18 @@
-import express from 'express'
-import { addCourse, educatorDashboardData, getEducatorCourse, getEnrolledStudentsData, updateRoleEducator } from '../controllers/educatorController.js'
+import express from 'express';
 import upload from '../config/multer.js';
+import { requireAuth } from '@clerk/express';
 import { protectEducator } from '../middlewares/authMiddleware.js';
+import { addCourse, educatorDashboardData, getEducatorCourse, getEnrolledStudentsData, updateRoleEducator } from '../controllers/educatorController.js';
 
-const educatorRouter = express.Router();
+const router = express.Router();
 
-educatorRouter.get('/update-role', updateRoleEducator);
-educatorRouter.post('/add-course', upload.single('image'), protectEducator, addCourse)
-educatorRouter.get('/courses',protectEducator,getEducatorCourse)
-educatorRouter.get('/dashboard',protectEducator,educatorDashboardData)
-educatorRouter.get('/enrolled-students',protectEducator,getEnrolledStudentsData)
+router.post('/update-role', requireAuth(), updateRoleEducator);
+router.post('/add-course', requireAuth(), protectEducator, upload.single('image'), addCourse);
 
+router.get('/courses', protectEducator, getEducatorCourse);
+router.get('/dashboard', protectEducator, educatorDashboardData);
+router.get('/enrolled-students', protectEducator, getEnrolledStudentsData);
 
-export default educatorRouter;
+router.get('/test', (req, res) => res.json({ success: true, message: 'Educator router working' }));
+
+export default router;

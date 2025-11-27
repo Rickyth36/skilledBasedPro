@@ -1,39 +1,40 @@
 import Course from "../models/Course.js";
 
-
-// Get all courses
-
-export const getAllCourses = async() => {
+export const getAllCourses = async (req, res) => {
     try {
-        const courses = await Course.find({isPublished: true}).select(['-courseContent','-enrolledStudent']).
-        populate({path: 'educator'});
+        const courses = await Course.find({ isPublished: true })
+            .select(['-courseContent', '-enrolledStudents']) // check plural in schema
+            .populate({ path: 'educator' })
+            .lean();
 
-        res.json({success: true, courses});
+        res.json({ success: true, courses });
     } catch (error) {
-        res.json({success: false, message: error.message});
+        res.json({ success: false, message: error.message });
     }
+};
 
-}
-
-export const getCourseId = async() => {
-    const {id} = req.params;
+export const getCourseId = async (req, res) => {
+    const { id } = req.params;
 
     try {
-        const courseData = await Course.findById(id).populate({path: 'educator'});
+        const courseData = await Course.findById(id)
+            .populate({ path: 'educator' })
+            .lean();
 
-        // remove lecture url is preview is false
-        courseData.courseContent.forEach(chapter => {
-            chapter.chapterContent.forEach(lecture => {
-                if(!lecture.isPreviewFree){
+        if (!courseData) {
+            return res.json({ success: false, message: "Course not found" });
+        }
+
+        courseData.courseContent.forEach((chapter) => {
+            chapter.chapterContent.forEach((lecture) => {
+                if (!lecture.isPreviewFree) {
                     lecture.lectureUrl = "";
                 }
-            })
-        })
+            });
+        });
 
-        res.json({success: true, courseData});
+        res.json({ success: true, courseData });
     } catch (error) {
-        res.json({success: true, message: error.message});
-        
+        res.json({ success: false, message: error.message });
     }
-}
-
+};

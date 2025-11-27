@@ -1,19 +1,49 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../../context/AppContext'
 import {Line} from 'rc-progress'
 import Footer from '../../components/student/Footer'
+import { toast } from 'react-toastify';
+import axios from 'axios';
+
 function MyEnrollments() {
-  const {enrolledCourses,calculateCourseDuration,navigate} = useContext(AppContext);
-  const [progressArray, setProgressArray] = useState([
-    {lectureCompleted: 2, totalLectures: 8},
-    {lectureCompleted: 3, totalLectures: 9},
-    {lectureCompleted: 4, totalLectures: 9},
-    {lectureCompleted: 5, totalLectures: 7},
-    {lectureCompleted: 6, totalLectures: 8},
-    {lectureCompleted: 7, totalLectures: 6},
-    {lectureCompleted: 7, totalLectures: 7},
-    {lectureCompleted: 3, totalLectures: 9}
-  ])
+  const {enrolledCourses,calculateCourseDuration,
+    navigate,userData,fetchEnrolledCourses,backendUrl,getToken,calculateNoOfLectures} = useContext(AppContext);
+  const [progressArray, setProgressArray] = useState([]);
+  const getCourseProgress = async () => {
+    try {
+      const token = await getToken();
+      const tempProgressArray = await Promise.all(
+        enrolledCourses.map(async(course) => {
+          const {data} = await axios.post(`${backendUrl}/api/user/get-course-progress`,{
+            courseId: course._id
+          },
+          {headers: {Authorization: `Bearer ${token}`} })
+
+          let totalLectures = calculateNoOfLectures(course);
+          const lectureCompleted = data.progressData ? data.progressData.lectureCompleted.length
+          : 0;
+          return {totalLectures,lectureCompleted};          
+            })
+        )
+        setProgressArray(tempProgressArray);
+
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }
+
+  useEffect(() => {
+    if(userData) {
+      fetchEnrolledCourses();
+    }
+  }, [userData])
+
+  useEffect(() => {
+    if(enrolledCourses.length > 0) {
+      getCourseProgress();
+    }
+  },[enrolledCourses])
+
   return (
     <>
       <div className='md:px-36 px-8 pt-10'>
@@ -38,7 +68,7 @@ function MyEnrollments() {
                       <p className='mb-1 max-sm:text-sm'>{course.courseTitle}</p>
                       <Line className='bg-gray-300 rounded-full' strokeWidth={2}
                        percent={progressArray[index] ? (progressArray[index].lectureCompleted * 100)
-                        / progressArray[index].totalLectures : 0}  /> 
+                        / progressArray[index].totalLectures : 0 }  /> 
                     </div>
                   </td>
                   <td className='px-4 py-3 max-sm:hidden'>
@@ -67,4 +97,4 @@ function MyEnrollments() {
   )
 }
 
-export default MyEnrollments
+export default MyEnrollments;
