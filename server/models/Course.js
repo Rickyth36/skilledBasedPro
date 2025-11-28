@@ -21,10 +21,10 @@ const courseSchema = new mongoose.Schema({
     courseDescription: {type: String, required: true},
     courseThumbnail: {type: String},
     coursePrice: {type: Number, required: true},
-    isPublishd: {type: Boolean, default: true},
+    isPublished: {type: Boolean, default: true},
     discount: {type: Number, required: true, min:0, max: 100 },
     courseContent: [chapterSchema],
-    courRating: [
+    courseRatings: [
         {userId: {type:String}, rating: {type: Number, min: 1, max: 5}}
     ],
     educator: {type: String,ref: 'User',required: true},

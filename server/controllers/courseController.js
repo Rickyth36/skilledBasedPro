@@ -1,4 +1,5 @@
 import Course from "../models/Course.js";
+import mongoose from 'mongoose';
 
 export const getAllCourses = async (req, res) => {
     try {
@@ -15,7 +16,10 @@ export const getAllCourses = async (req, res) => {
 
 export const getCourseId = async (req, res) => {
     const { id } = req.params;
-
+    console.log('id',id);
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ success: false, message: 'Invalid course ID' });
+    }
     try {
         const courseData = await Course.findById(id)
             .populate({ path: 'educator' })

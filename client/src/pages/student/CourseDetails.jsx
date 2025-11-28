@@ -14,9 +14,6 @@ function CourseDetails() {
   const [openSections, setOpenSections] = useState({});
   const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false);
   const [playerData, setPlayerData] = useState(null);
-  console.log(playerData);
-
-
         
   const {allCourses,calculateRating,calculateChapterTime,
     calculateCourseDuration,calculateNoOfLectures,currency,backendUrl,userData,getToken} = useContext(AppContext);
@@ -33,41 +30,42 @@ function CourseDetails() {
     }
   }
 
-  const enrollCourse = async() => {
-    try {
-      if(!userData) {
-        return toast.warn('Login to enroll');
-      }
-      if(isAlreadyEnrolled) {
-        return toast.warn('Already enrolled');
-      }
-      const token = await getToken();
-      
-      const {data} = await axios.post(backendUrl+'/api/user/purchase',{
-        courseId: courseData._id, 
-      },{headers: {Authorization: `Bearer ${token}`}});
-      if(data.success){
-        const {sessionUrl} = data;
-        window.location.replace(sessionUrl);
-      } else {
-        toast.error(data.message);
-      }
-      
-    } catch (error) {
-      toast.error(error.message);
-      
-    }
+const enrollCourse = async() => {
+  if (!courseData?._id) {
+    return toast.error("Course data not loaded yet");
   }
+  if (!userData) return toast.warn('Login to enroll');
+  if (isAlreadyEnrolled) return toast.warn('Already enrolled');
+
+  try {
+    const token = await getToken();
+    const { data } = await axios.post(
+      backendUrl + '/api/user/purchase',
+      { courseId: courseData._id },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    if (data.success && data.session_url) {
+      window.location.replace(data.session_url);
+    } else {
+      toast.error(data.message || "Invalid session URL");
+    }
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
+
 
   useEffect(()=>{
+    // if(!id) return;
     fetchCourseData();
-  },[])
+  },[]);
 
   useEffect(()=>{
     if(userData && courseData) {
       setIsAlreadyEnrolled(userData.enrolledCourses.includes(courseData._id))
     }
-  },[])
+  },[userData, courseData]);
 
   const toggleSection = (index) =>{
     setOpenSections((prev) =>(
@@ -157,7 +155,7 @@ function CourseDetails() {
 
         {/* right col */}
         <div className='max-w-course-card z-10 shadow-custom-card rounded-t md:rounded-none
-        overfow-hidden bg-white min-w-[300px] sm:min-w-[420px]'>
+        overflow-hidden bg-white min-w-[300px] sm:min-w-[420px]'>
           {
             playerData ? 
             (<Youtube videoId={playerData.videoId} opts={{playerVars:{autoplay:1}}}
@@ -198,7 +196,6 @@ function CourseDetails() {
             <button onClick={enrollCourse} className='md:mt-6 mt-4 w-full py-3 rounded bg-blue-600
             text-white font-medium'>
               {isAlreadyEnrolled ? 'Already enrolled':'Enroll now'}</button>
-            
             <div className="">
                 <p className='md:text-xl text-lg font-medium text-gray-800'>What's in the course</p>
                 <ul className='ml-4 pt-2 text-sm md:text-default list-disc text-gray-500'>

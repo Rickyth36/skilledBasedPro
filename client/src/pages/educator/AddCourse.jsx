@@ -173,7 +173,7 @@ function AddCourse() {
           <label className='flex items-center gap-3' htmlFor="thumbnailImage">
             <img className='p-3 bg-blue-500 rounded' src={assets.file_upload_icon} alt="" />
             <input id='thumbnailImage' onChange={(e) => setImage(e.target.files[0])} type="file" accept='image/*' hidden/>
-            <img className='max-h-10' src={image ? URL.createObjectURL(image):''} alt="" />
+            <img className='max-h-10' src={image ? URL.createObjectURL(image):null} alt="" />
           </label>
         </div>
       </div>
@@ -196,7 +196,7 @@ function AddCourse() {
                   <span className="font-semibold">{chapterIndex+1}{chapter.chapterTitle}</span>
                 </div>
                 <span className='text-gray-500'>{chapter.chapterContent.length} Lectures</span>
-                <img className='cursor-pointer' src={assets.cross_icon} alt="" />
+                <img onClick={() => handleChapter('remove', chapter.chapterId)} className='cursor-pointer' src={assets.cross_icon} alt="" />
               </div>
               {
                 !chapter.collapsed && (

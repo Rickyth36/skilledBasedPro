@@ -1,18 +1,31 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../../context/AppContext'
 import Loading from '../../components/student/Loading';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 function MyCourses() {
+  const {currency, backendUrl, isEducator, getToken} = useContext(AppContext);
   const [courses, setCourses] = useState(null);
-  const {currency,allCourses} = useContext(AppContext);
 
-  const fetchEducationCourses = () =>{
-    setCourses(allCourses);
+  const fetchEducationCourses = async() =>{
+    try {
+      const token = await getToken();
+      const {data} = await axios.get(backendUrl+'/api/educator/courses',
+        {headers: {Authorization: `Bearer ${token}`}}
+      );
+      data.success && setCourses(data.courses);
+
+    } catch (error) {
+      toast.error(error.message)
+    }
   }
 
   useEffect(()=>{
-    fetchEducationCourses();
-  },[])
+    if(isEducator) {
+      fetchEducationCourses();
+    }
+  },[isEducator])
 
 
   return (courses ?
@@ -35,8 +48,8 @@ function MyCourses() {
 
             <tbody className='text-sm text-gray-500'>
               {
-                courses.map((course) => (
-                  <tr className='border-b border-gray-500/20'>
+                courses.map((course, index) => (
+                  <tr key={index} className='border-b border-gray-500/20'>
                     <td className='md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3 truncate'>
                       <img className='w-16'
                        src={course.courseThumbnail} alt="Course Image" />
